@@ -14,7 +14,7 @@ class Solsystem:
         self.dim = dim
         self.dt = dt
         self.N = n_time_steps
-        self.G = 6.67384e-11 # Sun mass
+        self.G = 6.67384e-11 # Graviational constant
 
     def initial_values(self, array_pos, array_vel, masses):
         # Kan bruke en dicitionary for både number_of_planets og arrayene
@@ -29,8 +29,8 @@ class Solsystem:
             v[0, i, :] = array_vel[i]
             r[0, i, :] = array_pos[i]
 
-    def aks_func(self, r_pos, k):
-        M = self.masses[k]
+    def aks_func(self, r_pos):
+        M = self.masses
         G = self.G
 
         r = np.linalg.norm(r_pos)
@@ -50,12 +50,12 @@ class Solsystem:
         for i in range(N - 1):
             t[i + 1] = (i + 1) * dt
             for k in range(number_of_planets):
-                a[i, k, :] = self.aks_func(r[i, k, :], k)
+                a[i, k, :] = self.aks_func(r[i, k, :])
             v[i + 1, :, :] = v[i, :, :] + a[i, :, :] * dt
             r[i + 1, :, :] = r[i, :, :] + v[i + 1, :, :] * dt
         return r, v, a, t
 
-    def plot(self, name_of_planets):
+    def plot(self, name_of_planets, save = False, filename = "example_plot.png"):
         x = self.r[:, :, 0]
         y = self.r[:, :, 1]
 
@@ -63,6 +63,8 @@ class Solsystem:
             plt.plot(x[:, i], y[:, i], label = f"{name_of_planets[i]}")
             plt.axis("equal")
             plt.legend()
+        if save == True:
+            plt.savefig(filename)
         plt.show()
 
 if __name__ == '__main__':
@@ -85,7 +87,6 @@ if __name__ == '__main__':
     planet_vel[0, :] = np.array([3.332530175747475E+01 * 1000,
                                 9.837914285608647E+00 * 1000,
                                 -1.788529521785596E+00 * 1000])
-    masses[0] = 1.98855e30
 
     # Earth
     planet_pos[1, :] = np.array([9.460337608621770E+07 * 1000,
@@ -94,11 +95,10 @@ if __name__ == '__main__':
     planet_vel[1, :] = np.array([-2.332042112652936E+01 * 1000,
                                 1.901369366752253E+01 * 1000,
                                 -1.227219686033010E-03 * 1000])
-    masses[1] = 1.98855e30
-
-    testing.initial_values(planet_pos, planet_vel, masses)
+    solar_mass = 1.98855e30
+    testing.initial_values(planet_pos, planet_vel, solar_mass)
     testing.Euler_Cromers()
-    testing.plot(planet_names)
+    testing.plot(planet_names, save = True)
 
 
 
